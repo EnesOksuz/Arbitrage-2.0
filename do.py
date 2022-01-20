@@ -12,15 +12,19 @@ def getCoin():
     kucoin_cur = "https://api.kucoin.com/api/v1/currencies"
     huobi_cur = "https://api.huobi.pro/v1/common/symbols"
     okex_cur ="https://www.okex.com/api/spot/v3/instruments"
+    mexc_cur ="https://www.mexc.com/open/api/v2/market/symbols"
     res_kucoin_cur= requests.get(kucoin_cur).json()
     res_huobi_cur= requests.get(huobi_cur).json()
     res_okex_cur= requests.get(okex_cur).json()
+    res_mexc_cur = requests.get(mexc_cur).json()
     for x in range(len(res_kucoin_cur["data"])):
         coins2.append(res_kucoin_cur["data"][x]["currency"])
     for x in range(len(res_huobi_cur["data"])):
         coins2.append(res_huobi_cur["data"][x]["base-currency"].upper())
     for x in range(len(res_okex_cur)):
         coins2.append(res_okex_cur[x]["base_currency"])
+    for x in range(len(res_mexc_cur["data"])):
+        coins2.append(res_mexc_cur["data"][x]["vcoinName"])
     coins=list(dict.fromkeys(coins2))
 
     list_kucoin= res_kucoin_cur["data"]
@@ -36,6 +40,7 @@ def getPrice(coins):
         kucoin_price = requests.get("https://api.kucoin.com/api/v1/market/orderbook/level1?symbol="+coins[x]+"-USDT").json()
         huobi_price = requests.get("https://api.huobi.pro/market/detail/merged?symbol="+coins[x].lower()+"usdt").json()
         okex_price = requests.get("https://www.okex.com/api/spot/v3/instruments/"+coins[x]+"-USDT/ticker")
+        mexc_price =requests.get("https://www.mexc.com/open/api/v2/market/ticker?symbol="+ coins[x].lower()+"_usdt")
         data =[]
 
         print(coins[x])
@@ -59,8 +64,12 @@ def getPrice(coins):
             dictt["price"]=okex_price.json()["best_ask"]
             dictt["link"]=f"https://www.okex.com/tr/trade-spot/{coins[x].lower()}-usdt"
             data.append(dictt)
-         
-        
+        if(mexc_price.status_code==200):
+            dictt={}
+            dictt["exchange"]="mexc"
+            dictt["price"]=mexc_price.json()["data"][0]["last"]
+            dictt["link"]=f"https://www.mexc.com/tr-TR/exchange/{coins[x]}_USDT"         
+            data.append(dictt)
         temp ={}
         
         if(len(data)>1):
