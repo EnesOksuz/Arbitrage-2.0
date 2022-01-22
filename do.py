@@ -13,10 +13,13 @@ def getCoin():
     huobi_cur = "https://api.huobi.pro/v1/common/symbols"
     okex_cur ="https://www.okex.com/api/spot/v3/instruments"
     mexc_cur ="https://www.mexc.com/open/api/v2/market/symbols"
+    bybit_cur ="https://api.bybit.com/v2/public/symbols"
     res_kucoin_cur= requests.get(kucoin_cur).json()
     res_huobi_cur= requests.get(huobi_cur).json()
     res_okex_cur= requests.get(okex_cur).json()
     res_mexc_cur = requests.get(mexc_cur).json()
+    res_bybit_cur =requests.get("https://api.bybit.com/v2/public/symbols").json()
+
     for x in range(len(res_kucoin_cur["data"])):
         coins2.append(res_kucoin_cur["data"][x]["currency"])
     for x in range(len(res_huobi_cur["data"])):
@@ -25,13 +28,14 @@ def getCoin():
         coins2.append(res_okex_cur[x]["base_currency"])
     for x in range(len(res_mexc_cur["data"])):
         coins2.append(res_mexc_cur["data"][x]["vcoinName"])
+    for x in range (len(res_bybit_cur["result"])):
+        coins2.append(res_bybit_cur["result"][x]["base_currency"])
     coins=list(dict.fromkeys(coins2))
 
     list_kucoin= res_kucoin_cur["data"]
     list_huobi = res_huobi_cur["data"]
     list_okex = res_okex_cur
     return coins
-#hahaha
         
 def getPrice(coins):
     
@@ -42,6 +46,7 @@ def getPrice(coins):
         okex_price = requests.get("https://www.okex.com/api/spot/v3/instruments/"+coins[x]+"-USDT/ticker")
         mexc_price =requests.get("https://www.mexc.com/open/api/v2/market/ticker?symbol="+ coins[x].lower()+"_usdt")
         ftx_price = requests.get(f"https://ftx.com/api/markets/{coins[x]}/usdt/orderbook?depth=1")
+        bybit_price= requests.get(f"https://api.bybit.com/v2/public/tickers?symbol={coins[x]}USDT")
         data =[]
 
         print(coins[x])
@@ -74,9 +79,17 @@ def getPrice(coins):
         if(ftx_price.status_code==200):
             dictt={}
             dictt["exchange"]="ftx"
-            dictt["price"]=ftx_price.json()["result"]["bids"][0]
+            dictt["price"]=ftx_price.json()["result"]["bids"][0][0]
             dictt["link"]=f"https://ftx.com/trade/{coins[x]}/USDT"
             data.append(dictt)
+        if(bybit_price.json()["ret_msg"]=="OK"):
+            dictt={}
+            dictt["exchange"]="bybit"
+            dictt["price"]=bybit_price.json()["result"][0]["last_price"]
+            dictt["link"]=f"https://www.bybit.com/en-US/trade/spot/{coins[x]}/USDT"
+            data.append(dictt)
+
+
             
         temp ={}
         print(data)
