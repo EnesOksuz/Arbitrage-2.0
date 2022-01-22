@@ -3,7 +3,7 @@ from win10toast import ToastNotifier
 toast = ToastNotifier()
 
 def find(x):
-    if((float(x[-1]["price"])-float(x[0]["price"]))>(float(x[-1]["price"])*0.002)):
+    if((float(x[-1]["price"])-float(x[0]["price"]))>(float(x[-1]["price"])*0.05)):
         print("asdasds")
         toast.show_toast("Arbitrage","Arbitrage was just found",duration=20,icon_path="logo.ico")
 
@@ -41,6 +41,7 @@ def getPrice(coins):
         huobi_price = requests.get("https://api.huobi.pro/market/detail/merged?symbol="+coins[x].lower()+"usdt").json()
         okex_price = requests.get("https://www.okex.com/api/spot/v3/instruments/"+coins[x]+"-USDT/ticker")
         mexc_price =requests.get("https://www.mexc.com/open/api/v2/market/ticker?symbol="+ coins[x].lower()+"_usdt")
+        ftx_price = requests.get(f"https://ftx.com/api/markets/{coins[x]}/usdt/orderbook?depth=1")
         data =[]
 
         print(coins[x])
@@ -70,18 +71,26 @@ def getPrice(coins):
             dictt["price"]=mexc_price.json()["data"][0]["last"]
             dictt["link"]=f"https://www.mexc.com/tr-TR/exchange/{coins[x]}_USDT"         
             data.append(dictt)
+        if(ftx_price.status_code==200):
+            dictt={}
+            dictt["exchange"]="ftx"
+            dictt["price"]=ftx_price.json()["result"]["bids"][0]
+            dictt["link"]=f"https://ftx.com/trade/{coins[x]}/USDT"
+            data.append(dictt)
+            
         temp ={}
+        print(data)
         
-        if(len(data)>1):
-            for y in range(len(data)):
-                temp[y] = float(data[y]["price"])
-            temp = dict(sorted(temp.items(), key=lambda item: item[1]))
-            print(temp)
-            print("------------------------------------")
-            for y in range(len(data)):
-                data2.append(data[list(temp.keys())[y]])
-            print(data2)
-            find(data2)
+        # if(len(data)>1):
+        #     for y in range(len(data)):
+        #         temp[y] = float(data[y]["price"])
+        #     temp = dict(sorted(temp.items(), key=lambda item: item[1]))
+        #     print(temp)
+        #     print("------------------------------------")
+        #     for y in range(len(data)):
+        #         data2.append(data[list(temp.keys())[y]])
+        #     print(data2)
+        #     find(data2)
 
         
 
