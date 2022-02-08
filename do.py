@@ -14,13 +14,11 @@ def getCoin():
     okex_cur ="https://www.okex.com/api/spot/v3/instruments"
     mexc_cur ="https://www.mexc.com/open/api/v2/market/symbols"
     bybit_cur ="https://api.bybit.com/v2/public/symbols"
-    cro_cur ="https://api.crypto.com/v2/public/get-instruments"
     res_kucoin_cur= requests.get(kucoin_cur).json()
     res_huobi_cur= requests.get(huobi_cur).json()
     res_okex_cur= requests.get(okex_cur).json()
     res_mexc_cur = requests.get(mexc_cur).json()
     res_bybit_cur =requests.get(bybit_cur).json()
-    res_cro_cur = requests.get(cro_cur).json()
     for x in range(len(res_kucoin_cur["data"])):
         coins2.append(res_kucoin_cur["data"][x]["currency"])
     for x in range(len(res_huobi_cur["data"])):
@@ -31,8 +29,6 @@ def getCoin():
         coins2.append(res_mexc_cur["data"][x]["vcoinName"])
     for x in range (len(res_bybit_cur["result"])):
         coins2.append(res_bybit_cur["result"][x]["base_currency"])
-    for x in range(len(res_cro_cur["result"]["instruments"])):
-        coins2.append(res_cro_cur["result"]["instruments"][x]["quote_currency"])
     coins=list(dict.fromkeys(coins2))
 
     list_kucoin= res_kucoin_cur["data"]
@@ -43,6 +39,7 @@ def getCoin():
 def getPrice(coins):
     
     for x in range(len(coins)):
+        print(coins[x])
         data2=[]
         kucoin_price = requests.get("https://api.kucoin.com/api/v1/market/orderbook/level1?symbol="+coins[x]+"-USDT").json()
         huobi_price = requests.get("https://api.huobi.pro/market/detail/merged?symbol="+coins[x].lower()+"usdt").json()
@@ -50,10 +47,10 @@ def getPrice(coins):
         mexc_price =requests.get("https://www.mexc.com/open/api/v2/market/ticker?symbol="+ coins[x].lower()+"_usdt")
         ftx_price = requests.get(f"https://ftx.com/api/markets/{coins[x]}/usdt/orderbook?depth=1")
         bybit_price= requests.get(f"https://api.bybit.com/v2/public/tickers?symbol={coins[x]}USDT")
-        cro_price = requests.get(f"https://api.crypto.com/v2/public/get-ticker?instrument_name={coins[x]}_USDT").json()
         data =[]
+        temizcoins=[]
 
-        print(coins[x])
+    
         if(kucoin_price["data"]):
             dictt={}
             dictt["exchange"]="kucoin"
@@ -74,7 +71,7 @@ def getPrice(coins):
             dictt["price"]=okex_price.json()["best_ask"]
             dictt["link"]=f"https://www.okex.com/tr/trade-spot/{coins[x].lower()}-usdt"
             data.append(dictt)
-        if(mexc_price.status_code==200):
+        if(mexc_price.status_code==200 and len(mexc_price.json()["data"])!=0):
             dictt={}
             dictt["exchange"]="mexc"
             dictt["price"]=mexc_price.json()["data"][0]["last"]
@@ -92,17 +89,14 @@ def getPrice(coins):
             dictt["price"]=bybit_price.json()["result"][0]["last_price"]
             dictt["link"]=f"https://www.bybit.com/en-US/trade/spot/{coins[x]}/USDT"
             data.append(dictt)
-        if(type(cro_price["result"]["data"])==type({})):
-            dictt={}
-            dictt["exchange"]="cro"
-            dictt["price"]=cro_price["result"]["data"]["a"]
-            dictt["link"]=f"https://api.crypto.com/v2/public/get-ticker?instrument_name={coins[x]}_USDT"
-            data.append(dictt)
 
 
             
         temp ={}
         print(data)
+        if(len(data)>1):
+            temizcoins.append(coins[x])
+
         
         # if(len(data)>1):
         #     for y in range(len(data)):
