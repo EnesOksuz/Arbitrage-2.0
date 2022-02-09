@@ -31,15 +31,23 @@ def sort(coins):
     for x in range(len(coins)):
         print(coins[x])
         counter =0
-        kucoin_control =requests.get(f"https://api.kucoin.com/api/v1/currencies/{coins[x]}")
-        huobi_control = requests.get("https://api.huobi.pro/v1/common/currencys")
-        okex_control=requests.get("https://www.okex.com/api/spot/v3/instruments")
-        mexc_control = requests.get("https://www.mexc.com/open/api/v2/market/symbols")
+        kucoin_control  = requests.get(f"https://api.kucoin.com/api/v1/currencies")
+        huobi_control   = requests.get("https://api.huobi.pro/v1/common/currencys")
+        okex_control    = requests.get("https://www.okex.com/api/spot/v3/instruments")
+        mexc_control    = requests.get("https://www.mexc.com/open/api/v2/market/symbols")
+        ftx_control     = requests.get("https://ftx.com/api/wallet/coins")
+        bybit_control   = requests.get("https://api.bybit.com/v2/public/symbols")
         
         
     #-------------------FOR KUCOİN---------------------------------------------
-        if(kucoin_control.json()["code"]=="200000"):
-            counter+=1
+        kucoin_coins =[]
+        for y in range(len(kucoin_control.json()["data"])):
+            kucoin_coins.append(kucoin_control.json()["data"][y]["currency"])
+        for y in range(len(kucoin_coins)):
+            if(coins[x]==kucoin_coins[y]):
+                counter+=1
+        # if(kucoin_control.json()["code"]=="200000"):
+        #     counter+=1
     #-----------------FOR HUOBI--------------------------------------------------------
         huobi_coins = huobi_control.json()["data"]
         for y in range(len(huobi_coins)):
@@ -62,6 +70,22 @@ def sort(coins):
         for y in range(len(mexc_coins)):
             if(coins[x]==mexc_coins[y]):
                 counter+=1
+    #--------------------- FOR FTX---------------------------------------------
+        ftx_coins=[]
+        for y in range(len(ftx_control.json()["result"])):
+            ftx_coins.append(ftx_control.json()["result"][y]["id"])
+        for y in range(len(ftx_coins)):
+            if(coins[x]==ftx_coins[y]):
+                counter+=1
+    #------------------ for bybit------------------------------------------
+        bybit_coins=[]
+        for y in range(len(bybit_control.json()["result"])):
+            bybit_coins.append(bybit_control.json()["result"][y]["base_currency"])
+        for y in range(len(bybit_coins)):
+            if(coins[x]==bybit_coins[y]):
+                counter+=1
+        
+
 #API hiz testi yap mexc yavaş çalışıyor
         print(counter)
         
