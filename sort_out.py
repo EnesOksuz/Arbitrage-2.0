@@ -1,3 +1,4 @@
+from tkinter import E
 import requests
 import time
 def getCoin():
@@ -37,7 +38,7 @@ def getCoin():
 
     coins=list(dict.fromkeys(coins2))
     for x in range(len(coins)):
-        print(coins[x])
+    
         counter=0
         for y in range(len(kucoin_coins)):
             if(coins[x]==kucoin_coins[y]):
@@ -59,14 +60,19 @@ def getCoin():
                 counter+=1
         if(counter>1):
             sortedcoins.append(coins[x])
-        print(counter)
-    print(len(coins))
-    print(len(sortedcoins))
+    sortedcoins.sort()
+    for x in range(len(sortedcoins)-29):
+        if(sortedcoins[x].find("3S")!=-1 or sortedcoins[x].find("3L")!=-1 or sortedcoins[x].find("2L")!=-1 or sortedcoins[x].find("2S")!=-1):
+            print(sortedcoins[x])
+            sortedcoins.remove(sortedcoins[x])
+            
+    print(sortedcoins)
+
+    return sortedcoins
         
         
 
+getCoin()       
         
-        
-    #coins.sort()
     
-getCoin()
+    
