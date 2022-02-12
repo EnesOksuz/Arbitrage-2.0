@@ -61,11 +61,13 @@ def getCoin():
         if(counter>1):
             sortedcoins.append(coins[x])
     sortedcoins.sort()
-    for x in range(len(sortedcoins)-29):
+    trash =[]
+    for x in range(len(sortedcoins)):
         if(sortedcoins[x].find("3S")!=-1 or sortedcoins[x].find("3L")!=-1 or sortedcoins[x].find("2L")!=-1 or sortedcoins[x].find("2S")!=-1):
+            trash.append(sortedcoins[x])
             print(sortedcoins[x])
-            sortedcoins.remove(sortedcoins[x])
-            
+    for x in range(len(trash)):
+        sortedcoins.remove(trash[x])
     print(sortedcoins)
 
     return sortedcoins
